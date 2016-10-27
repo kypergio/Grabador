@@ -54,8 +54,10 @@
   <ItemGroup>
     <Compile Include="Clases\Config.cs" />
     <Compile Include="DTO\Alumno.cs" />
+    <Compile Include="DTO\CicloEscolar.cs" />
     <Compile Include="DTO\CIdMatricula.cs" />
     <Compile Include="DTO\ClaveISSEMYM.cs" />
+    <Compile Include="DTO\Confirmacion.cs" />
     <Compile Include="DTO\Empleado.cs" />
     <Compile Include="Clases\Encriptacion.cs" />
     <Compile Include="Clases\JsonConvertidor.cs" />
@@ -66,10 +68,21 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Inicio.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Inicio.Designer.cs">
+      <DependentUpon>Inicio.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Operaciones\AdministracionPuertoSerial.cs" />
+    <Compile Include="Operaciones\WebService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Inicio.resx">
+      <DependentUpon>Inicio.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -79,8 +92,10 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\DTO.CicloEscolar.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -93,6 +108,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Img\logo_1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Img\ajustes.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

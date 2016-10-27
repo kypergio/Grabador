@@ -1,17 +1,12 @@
 ﻿using DTO;
 using Grabador.Clases;
-using Grabador.DTO;
+using Operaciones;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Utilidades;
 
@@ -20,57 +15,54 @@ namespace Grabador
     public partial class Form1 : Form
     {
         private Peticion peticion = new Peticion();
-        private List<Alumno> alumnos = new List<Alumno>();
-        private List<Empleado> empleados = new List<Empleado>();
-        private SerialPort serial = new SerialPort();
-        private Thread hiloConexionWebService, hiloVerificarSerial, hiloRegistrarWebService;
+        private Thread _hVerificarSerial, _hRegistrarWebServices;
         private CIdMatricula CIdMatricula = null;
         private Config config = new Config();
+
+        private List<CicloEscolar> ciclosEscolares;
+
+        private WebService ws;
+        private AdministracionPuertoSerial puerto;
 
         public Form1()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
             config.nombre = "Alumnos";
             config.tab = tbAlumnos;
-            config.LbEmergencia = lbEmergencia;
             config.txtIdTag = txtIdTarjetaAlumno;
 
         }
 
         private void __CargarFormulario(object sender, EventArgs e)
         {
-            hiloConexionWebService = new Thread(new ThreadStart(ConectarWebService));
-            hiloVerificarSerial = new Thread(new ThreadStart(VerificarSerial));
-            hiloRegistrarWebService = new Thread(new ThreadStart(RegistrarWebService));
-            hiloConexionWebService.Start();
-            hiloVerificarSerial.Start();
-            hiloRegistrarWebService.Start();
+            _hVerificarSerial = new Thread(new ThreadStart(puerto.VerificarConexion));
+            _hRegistrarWebServices = new Thread(new ThreadStart(RegistrarWebService));
+
+
+            _hVerificarSerial.Start();
+            _hRegistrarWebServices.Start();
+
         }
 
-        private void VerificarSerial()
+        public void SetDatosIniciales(WebService ws, AdministracionPuertoSerial puerto)
         {
-            while (true)
+            this.ws = ws;
+            this.puerto = puerto;
+            this.puerto.GetPuerto().DataReceived += RecibirDatos;
+
+            ciclosEscolares = ws.GetCiclosEscolares();
+            foreach(var ciclo in ciclosEscolares)
             {
-                if (!serial.IsOpen)
-                {
-                    Invoke(new Action(() => lbConexion.BackColor = System.Drawing.Color.DarkRed));
-                    Invoke(new Action(() => lbConexion.Text = "DESCONECTADO"));
-                    try
-                    {
-                        serial.PortName = "COM5";
-                        serial.BaudRate = 9600;
-                        serial.DataReceived += RecibirDatos;
-                        serial.Open();
-                        Invoke(new Action(() => lbConexion.BackColor = System.Drawing.Color.Green));
-                        Invoke(new Action(() => lbConexion.Text = serial.PortName));
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                }
-
+                listaCiclos.Items.Add(ciclo);
             }
+
+            listaCiclos.ComboBox.DisplayMember = "Nombre";
+            listaCiclos.ComboBox.ValueMember = "ID";
+            listaCiclos.ComboBox.DataSource = ciclosEscolares;
+
+
+            listaCiclos.Text = ciclosEscolares.Last().Nombre;
         }
 
         private void RecibirDatos(object sender, SerialDataReceivedEventArgs e)
@@ -78,10 +70,18 @@ namespace Grabador
 
             try
             {
-                String recibido = serial.ReadLine();
+                String recibido = puerto.LeerLinea();
                 String[] idCard = null;
                 if (recibido.Contains("idCard"))
                 {
+                    if (txtApellidoMaternoAlumno.Text == "" && txtApellidoPaternoEmpleado.Text == "")
+                    {
+                        lbStatus.Text = "Primero debe buscar un registro";
+                        Thread.Sleep(1000);
+                        lbStatus.Text = "Puede comenzar a Grabar";
+                        puerto.Escribir("reload");
+                        return;
+                    }
                     idCard = recibido.Split(' ');
                     recibido = "puesta";
 
@@ -89,38 +89,28 @@ namespace Grabador
                 switch (recibido)
                 {
                     case "untag\r":
-                        Invoke(new Action(() => config.LbEmergencia.Text = ""));
+                        lbStatus.Text = "Puede comenzar a Grabar";
+                        lbStatus.BackColor = System.Drawing.Color.YellowGreen;
+                        btnGrabar.Enabled = false;
                         break;
                     case "success\r":
-                        Invoke(new Action(() => config.LbEmergencia.Text = "Por favor retire la tarjeta ahora."));
-                        Invoke(new Action(() => config.LbEmergencia.BackColor = System.Drawing.Color.GreenYellow));
-                        Thread.Sleep(3000);
+                        lbStatus.Text = "Retire la credencial ahora";
+                        lbStatus.BackColor = System.Drawing.Color.Aquamarine;
+                        Thread.Sleep(2000);
                         break;
                     case "fail\r":
                         break;
                     case "puesta":
-                        Invoke(new Action(() => config.LbEmergencia.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))))));
-                        Invoke(new Action(() => config.LbEmergencia.Text = "Por favor no retire la tarjeta hasta que se le indique."));
-                        Invoke(new Action(() => config.txtIdTag.Text = idCard[1]));
+                        lbStatus.Text = "No retire la credencial";
+                        lbStatus.BackColor = System.Drawing.Color.Red;
+                        config.txtIdTag.Text = idCard[1];
+                        btnCancelar.Enabled = true;
+                        btnGrabar.Enabled = true;
                         break;
                 }
             }
             catch (Exception) { }
         }
-
-        private void ConectarWebService()
-        {
-            peticion.PedirComunicacion("/alumnos/", "GET");
-            String json = peticion.ObtenerJson();
-            alumnos = JsonConvertidor.Json_Alumno(json);
-
-            peticion.PedirComunicacion("/empleados/", "GET");
-            json = peticion.ObtenerJson();
-            empleados = JsonConvertidor.Json_Empleado(json);
-
-            hiloConexionWebService.Abort();
-        }
-
         private void _PresionarTecla(object sender, KeyEventArgs e)
         {
             if (tbMain.SelectedTab == tbAlumnos)
@@ -131,13 +121,7 @@ namespace Grabador
                     String matricula = txtMatricula.Text;
                     String encripMat = Encriptacion.Encriptar(matricula);
 
-                    if (matricula.Length < 11)
-                    {
-                        MessageBox.Show("Verifique la matrícula", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    IEnumerable<Alumno> resultado = alumnos.Where(c => c.Matricula.Equals(encripMat));
+                    IEnumerable<Alumno> resultado = ws.GetAlumnos().Where(c => c.Matricula.Equals(encripMat));
                     if (resultado.Count() == 0)
                     {
                         MessageBox.Show("Ningún registro encontrado", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
@@ -162,7 +146,7 @@ namespace Grabador
                     String encriptarIssemym = Encriptacion.Encriptar(issemym);
 
 
-                    IEnumerable<Empleado> resultado = empleados.Where(c => c.ClaveISSEMYM.Equals(encriptarIssemym));
+                    IEnumerable<Empleado> resultado = ws.GetEmpleados().Where(c => c.ClaveISSEMYM.Equals(encriptarIssemym));
                     if (resultado.Count() == 0)
                     {
                         MessageBox.Show("Ningún registro encontrado", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
@@ -200,7 +184,7 @@ namespace Grabador
 
         private void __CerrandoFormulario(object sender, FormClosingEventArgs e)
         {
-            hiloVerificarSerial.Abort();
+            _hVerificarSerial.Abort();
         }
 
         private void __CambiarTab(object sender, EventArgs e)
@@ -209,14 +193,12 @@ namespace Grabador
             {
                 config.nombre = "Alumnos";
                 config.tab = tbAlumnos;
-                config.LbEmergencia = lbEmergencia;
                 config.txtIdTag = txtIdTarjetaAlumno;
             }
             else
             {
                 config.nombre = "Empleados";
                 config.tab = tbEmpleados;
-                config.LbEmergencia = lbEmergenciaEmpleados;
                 config.txtIdTag = txtIdTarjetaEmpleado;
             }
         }
@@ -234,11 +216,22 @@ namespace Grabador
             }
         }
 
+        private void __CancelarGrabacion(object sender, EventArgs e)
+        {
+            puerto.Escribir("reload");
+            btnCancelar.Enabled = false;
+        }
+
+        private void __CambioCiclo(object sender, EventArgs e)
+        {
+            var ciclo = ((CicloEscolar)listaCiclos.SelectedItem).ID;
+        }
+
         private void __Grabar(object sender, EventArgs e)
         {
             if (tbMain.SelectedTab == tbAlumnos)
             {
-                serial.WriteLine(txtMatricula.Text + "#");
+                puerto.Escribir(txtMatricula.Text);
 
                 String matricula = txtMatricula.Text;
                 String idTag = txtIdTarjetaAlumno.Text.TrimEnd('\r');
@@ -247,7 +240,7 @@ namespace Grabador
             }
             else
             {
-                serial.WriteLine(txtIssemym.Text + "#");
+                puerto.Escribir(txtIssemym.Text);
 
                 String issemym = txtIssemym.Text;
                 String idTag = txtIdTarjetaEmpleado.Text.TrimEnd('\r');

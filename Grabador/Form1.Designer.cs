@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.tbMain = new System.Windows.Forms.TabControl();
             this.tbAlumnos = new System.Windows.Forms.TabPage();
-            this.lbEmergencia = new System.Windows.Forms.Label();
             this.txtIdTarjetaAlumno = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.txtMatricula = new System.Windows.Forms.MaskedTextBox();
@@ -55,13 +55,16 @@
             this.btnGrabar = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lbConexion = new System.Windows.Forms.ToolStripStatusLabel();
-            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.lbEmergenciaEmpleados = new System.Windows.Forms.Label();
+            this.lbStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.btnCancelar = new System.Windows.Forms.Button();
+            this.menu = new System.Windows.Forms.MenuStrip();
+            this.ajustesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listaCiclos = new System.Windows.Forms.ToolStripComboBox();
             this.tbMain.SuspendLayout();
             this.tbAlumnos.SuspendLayout();
             this.tbEmpleados.SuspendLayout();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
+            this.menu.SuspendLayout();
             this.SuspendLayout();
             // 
             // tbMain
@@ -77,7 +80,6 @@
             // 
             // tbAlumnos
             // 
-            this.tbAlumnos.Controls.Add(this.lbEmergencia);
             this.tbAlumnos.Controls.Add(this.txtIdTarjetaAlumno);
             this.tbAlumnos.Controls.Add(this.label5);
             this.tbAlumnos.Controls.Add(this.txtMatricula);
@@ -95,15 +97,6 @@
             this.tbAlumnos.TabIndex = 0;
             this.tbAlumnos.Text = "Alumnos";
             this.tbAlumnos.UseVisualStyleBackColor = true;
-            // 
-            // lbEmergencia
-            // 
-            this.lbEmergencia.AutoSize = true;
-            this.lbEmergencia.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.lbEmergencia.Location = new System.Drawing.Point(8, 142);
-            this.lbEmergencia.Name = "lbEmergencia";
-            this.lbEmergencia.Size = new System.Drawing.Size(0, 13);
-            this.lbEmergencia.TabIndex = 10;
             // 
             // txtIdTarjetaAlumno
             // 
@@ -193,7 +186,6 @@
             // 
             // tbEmpleados
             // 
-            this.tbEmpleados.Controls.Add(this.lbEmergenciaEmpleados);
             this.tbEmpleados.Controls.Add(this.txtIdTarjetaEmpleado);
             this.tbEmpleados.Controls.Add(this.label6);
             this.tbEmpleados.Controls.Add(this.txtIssemym);
@@ -300,6 +292,7 @@
             // 
             // btnGrabar
             // 
+            this.btnGrabar.Enabled = false;
             this.btnGrabar.Location = new System.Drawing.Point(2, 277);
             this.btnGrabar.Name = "btnGrabar";
             this.btnGrabar.Size = new System.Drawing.Size(75, 23);
@@ -311,7 +304,8 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.lbConexion});
+            this.lbConexion,
+            this.lbStatus});
             this.statusStrip1.Location = new System.Drawing.Point(0, 308);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(331, 22);
@@ -327,30 +321,66 @@
             this.lbConexion.Size = new System.Drawing.Size(38, 17);
             this.lbConexion.Text = "COM10";
             // 
-            // fileSystemWatcher1
+            // lbStatus
             // 
-            this.fileSystemWatcher1.EnableRaisingEvents = true;
-            this.fileSystemWatcher1.SynchronizingObject = this;
+            this.lbStatus.BackColor = System.Drawing.Color.GreenYellow;
+            this.lbStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lbStatus.Name = "lbStatus";
+            this.lbStatus.Size = new System.Drawing.Size(150, 17);
+            this.lbStatus.Text = "Puede comenzar a Grabar";
             // 
-            // lbEmergenciaEmpleados
+            // btnCancelar
             // 
-            this.lbEmergenciaEmpleados.AutoSize = true;
-            this.lbEmergenciaEmpleados.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.lbEmergenciaEmpleados.Location = new System.Drawing.Point(12, 138);
-            this.lbEmergenciaEmpleados.Name = "lbEmergenciaEmpleados";
-            this.lbEmergenciaEmpleados.Size = new System.Drawing.Size(0, 13);
-            this.lbEmergenciaEmpleados.TabIndex = 20;
+            this.btnCancelar.Enabled = false;
+            this.btnCancelar.Location = new System.Drawing.Point(83, 277);
+            this.btnCancelar.Name = "btnCancelar";
+            this.btnCancelar.Size = new System.Drawing.Size(75, 23);
+            this.btnCancelar.TabIndex = 3;
+            this.btnCancelar.Text = "Cancelar";
+            this.btnCancelar.UseVisualStyleBackColor = true;
+            this.btnCancelar.Click += new System.EventHandler(this.@__CancelarGrabacion);
+            // 
+            // menu
+            // 
+            this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ajustesToolStripMenuItem});
+            this.menu.Location = new System.Drawing.Point(0, 0);
+            this.menu.Name = "menu";
+            this.menu.Size = new System.Drawing.Size(331, 24);
+            this.menu.TabIndex = 4;
+            this.menu.Text = "menuStrip1";
+            // 
+            // ajustesToolStripMenuItem
+            // 
+            this.ajustesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.listaCiclos});
+            this.ajustesToolStripMenuItem.Name = "ajustesToolStripMenuItem";
+            this.ajustesToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
+            this.ajustesToolStripMenuItem.Text = "Ajustes";
+            // 
+            // listaCiclos
+            // 
+            this.listaCiclos.Name = "listaCiclos";
+            this.listaCiclos.Size = new System.Drawing.Size(121, 23);
+            this.listaCiclos.Text = "Ciclo Escolar";
+            this.listaCiclos.SelectedIndexChanged += new System.EventHandler(this.@__CambioCiclo);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(331, 330);
+            this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.menu);
             this.Controls.Add(this.btnGrabar);
             this.Controls.Add(this.tbMain);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menu;
+            this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Grabador de Credenciales Escolares";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.@__CerrandoFormulario);
             this.Load += new System.EventHandler(this.@__CargarFormulario);
             this.tbMain.ResumeLayout(false);
@@ -360,7 +390,8 @@
             this.tbEmpleados.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
+            this.menu.ResumeLayout(false);
+            this.menu.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -382,10 +413,8 @@
         private System.Windows.Forms.MaskedTextBox txtMatricula;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel lbConexion;
-        private System.IO.FileSystemWatcher fileSystemWatcher1;
         private System.Windows.Forms.TextBox txtIdTarjetaAlumno;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label lbEmergencia;
         private System.Windows.Forms.TextBox txtIdTarjetaEmpleado;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.MaskedTextBox txtIssemym;
@@ -396,7 +425,11 @@
         private System.Windows.Forms.TextBox txtApellidoPaternoEmpleado;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label lbEmergenciaEmpleados;
+        private System.Windows.Forms.ToolStripStatusLabel lbStatus;
+        private System.Windows.Forms.Button btnCancelar;
+        private System.Windows.Forms.MenuStrip menu;
+        private System.Windows.Forms.ToolStripMenuItem ajustesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripComboBox listaCiclos;
     }
 }
 

@@ -23,5 +23,10 @@ namespace Utilidades
         {
             return JsonConvert.SerializeObject(objeto);
         }
+
+        internal static List<CicloEscolar> Json_CicloEscolar(string json)
+        {
+            return JsonConvert.DeserializeObject<List<CicloEscolar>>(json);
+        }
     }
 }

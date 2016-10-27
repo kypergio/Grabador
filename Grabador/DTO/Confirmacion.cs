@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace DTO
 {
-    class CIdMatricula
+    public class Confirmacion
     {
-        public String Matricula { get; set; }
-        public String IDTarjeta { get; set; }
+        public bool Estado { get; set; } 
+
+        public string Descripcion { get; set; }
     }
 }
