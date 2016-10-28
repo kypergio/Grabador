@@ -37,11 +37,9 @@ namespace Grabador
         private void __CargarFormulario(object sender, EventArgs e)
         {
             _hVerificarSerial = new Thread(new ThreadStart(puerto.VerificarConexion));
-            _hRegistrarWebServices = new Thread(new ThreadStart(RegistrarWebService));
 
 
             _hVerificarSerial.Start();
-            _hRegistrarWebServices.Start();
 
         }
 
@@ -52,7 +50,7 @@ namespace Grabador
             this.puerto.GetPuerto().DataReceived += RecibirDatos;
 
             ciclosEscolares = ws.GetCiclosEscolares();
-            foreach(var ciclo in ciclosEscolares)
+            foreach (var ciclo in ciclosEscolares)
             {
                 listaCiclos.Items.Add(ciclo);
             }
@@ -63,6 +61,7 @@ namespace Grabador
 
 
             listaCiclos.Text = ciclosEscolares.Last().Nombre;
+            lbCicloEscolar.Text = listaCiclos.Text;
         }
 
         private void RecibirDatos(object sender, SerialDataReceivedEventArgs e)
@@ -90,19 +89,17 @@ namespace Grabador
                 {
                     case "untag\r":
                         lbStatus.Text = "Puede comenzar a Grabar";
-                        lbStatus.BackColor = System.Drawing.Color.YellowGreen;
                         btnGrabar.Enabled = false;
+                        btnCancelar.Enabled = false;
                         break;
                     case "success\r":
                         lbStatus.Text = "Retire la credencial ahora";
-                        lbStatus.BackColor = System.Drawing.Color.Aquamarine;
                         Thread.Sleep(2000);
                         break;
                     case "fail\r":
                         break;
                     case "puesta":
                         lbStatus.Text = "No retire la credencial";
-                        lbStatus.BackColor = System.Drawing.Color.Red;
                         config.txtIdTag.Text = idCard[1];
                         btnCancelar.Enabled = true;
                         btnGrabar.Enabled = true;
@@ -170,6 +167,7 @@ namespace Grabador
                 txtApellidoPaternoAlumno.Text = null;
                 txtApellidoMaternoAlumno.Text = null;
                 txtNombreAlumno.Text = null;
+                txtIdTarjetaAlumno.Text = null;
                 if (reiniMatricula) txtMatricula.Text = null;
             }
             else
@@ -177,6 +175,7 @@ namespace Grabador
                 txtApellidoPaternoEmpleado.Text = null;
                 txtApellidoMaternoEmpleado.Text = null;
                 txtNombreEmpleado.Text = null;
+                txtIdTarjetaEmpleado.Text = null;
                 if (reiniMatricula) txtIssemym.Text = null;
             }
 
@@ -202,20 +201,6 @@ namespace Grabador
                 config.txtIdTag = txtIdTarjetaEmpleado;
             }
         }
-
-        private void RegistrarWebService()
-        {
-            while (true)
-            {
-                if (CIdMatricula == null) continue;
-
-                peticion.PedirComunicacion("/CIdMatricula/add", "POST");
-                peticion.IncrustarDatos(JsonConvertidor.Objeto_Json(CIdMatricula));
-                String resultado = peticion.ObtenerJson();
-                CIdMatricula = null;
-            }
-        }
-
         private void __CancelarGrabacion(object sender, EventArgs e)
         {
             puerto.Escribir("reload");
@@ -224,31 +209,38 @@ namespace Grabador
 
         private void __CambioCiclo(object sender, EventArgs e)
         {
-            var ciclo = ((CicloEscolar)listaCiclos.SelectedItem).ID;
+            lbCicloEscolar.Text = ((CicloEscolar)listaCiclos.SelectedItem).Nombre;
         }
 
         private void __Grabar(object sender, EventArgs e)
         {
+
             if (tbMain.SelectedTab == tbAlumnos)
             {
-                puerto.Escribir(txtMatricula.Text);
-
                 String matricula = txtMatricula.Text;
                 String idTag = txtIdTarjetaAlumno.Text.TrimEnd('\r');
 
-                CIdMatricula = new CIdMatricula { Matricula = matricula, IDTarjeta = idTag };
+                CIdMatricula = new CIdMatricula { Matricula = matricula, IDTarjeta = idTag,Tipo = false };
             }
             else
             {
-                puerto.Escribir(txtIssemym.Text);
-
                 String issemym = txtIssemym.Text;
                 String idTag = txtIdTarjetaEmpleado.Text.TrimEnd('\r');
 
-                CIdMatricula = new CIdMatricula { Matricula = issemym, IDTarjeta = idTag };
-
-
+                CIdMatricula = new CIdMatricula { Matricula = issemym, IDTarjeta = idTag, Tipo = true };
             }
+
+            ws.SetRegistro(CIdMatricula);
+
+            if(ws.Registrar())
+            {
+                puerto.Escribir(CIdMatricula.Matricula);
+                puerto.Escribir(((CicloEscolar)listaCiclos.SelectedItem).ID.ToString());
+
+                ReiniciarForm(true, 1);
+                MessageBox.Show("Correcto","Información",MessageBoxButtons.OK,MessageBoxIcon.Information);
+            }
+
         }
     }
 }

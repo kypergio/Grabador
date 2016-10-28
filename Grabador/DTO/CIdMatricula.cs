@@ -10,5 +10,6 @@ namespace DTO
     {
         public String Matricula { get; set; }
         public String IDTarjeta { get; set; }
+        public bool Tipo { get; set; }
     }
 }

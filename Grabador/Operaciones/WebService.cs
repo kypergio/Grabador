@@ -18,6 +18,8 @@ namespace Operaciones
         private ProgressBar progreso;
         private Label estado;
 
+        private CIdMatricula registro;
+
         private Peticion peticion = new Peticion();
 
         private string json = "";
@@ -28,6 +30,27 @@ namespace Operaciones
             this.estado = estado;
         }
 
+        public bool Registrar()
+        {
+            peticion.PedirComunicacion("/CIdMatricula/add", "POST");
+            peticion.IncrustarDatos(JsonConvertidor.Objeto_Json(registro));
+            String resultado = peticion.ObtenerJson();
+            registro = null;
+            Confirmacion respuesta = JsonConvertidor.Json_Confirmacion(resultado);
+            if(respuesta.Estado)
+            {
+                return true;
+            }
+            else
+            {
+                if(respuesta.Descripcion == "Duplicado")
+                {
+                    MessageBox.Show("Este ID de Tarjeta ya está asignada a un usuario","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                }
+
+                return false;
+            }
+        }
 
         public void Consumir()
         {
@@ -80,6 +103,11 @@ namespace Operaciones
         public List<CicloEscolar> GetCiclosEscolares()
         {
             return ciclosEscolares;
+        }
+
+        internal void SetRegistro(CIdMatricula registro)
+        {
+            this.registro = registro;
         }
     }
 }

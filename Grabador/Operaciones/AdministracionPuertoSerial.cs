@@ -29,6 +29,7 @@ namespace Operaciones
                 try
                 {
                     puertoSerial.PortName = serial;
+                    puertoSerial.BaudRate = 9600;
                     puertoSerial.Open();
 
                     if (puertoSerial.BytesToRead <= 0)

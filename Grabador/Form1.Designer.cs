@@ -60,6 +60,7 @@
             this.menu = new System.Windows.Forms.MenuStrip();
             this.ajustesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listaCiclos = new System.Windows.Forms.ToolStripComboBox();
+            this.lbCicloEscolar = new System.Windows.Forms.ToolStripStatusLabel();
             this.tbMain.SuspendLayout();
             this.tbAlumnos.SuspendLayout();
             this.tbEmpleados.SuspendLayout();
@@ -71,7 +72,7 @@
             // 
             this.tbMain.Controls.Add(this.tbAlumnos);
             this.tbMain.Controls.Add(this.tbEmpleados);
-            this.tbMain.Location = new System.Drawing.Point(0, 0);
+            this.tbMain.Location = new System.Drawing.Point(0, 25);
             this.tbMain.Name = "tbMain";
             this.tbMain.SelectedIndex = 0;
             this.tbMain.Size = new System.Drawing.Size(331, 275);
@@ -293,7 +294,7 @@
             // btnGrabar
             // 
             this.btnGrabar.Enabled = false;
-            this.btnGrabar.Location = new System.Drawing.Point(2, 277);
+            this.btnGrabar.Location = new System.Drawing.Point(74, 306);
             this.btnGrabar.Name = "btnGrabar";
             this.btnGrabar.Size = new System.Drawing.Size(75, 23);
             this.btnGrabar.TabIndex = 1;
@@ -303,10 +304,12 @@
             // 
             // statusStrip1
             // 
+            this.statusStrip1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lbConexion,
-            this.lbStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 308);
+            this.lbStatus,
+            this.lbCicloEscolar});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 336);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(331, 22);
             this.statusStrip1.TabIndex = 2;
@@ -314,7 +317,7 @@
             // 
             // lbConexion
             // 
-            this.lbConexion.BackColor = System.Drawing.Color.Red;
+            this.lbConexion.BackColor = System.Drawing.Color.Transparent;
             this.lbConexion.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.lbConexion.Font = new System.Drawing.Font("Segoe UI", 7F);
             this.lbConexion.Name = "lbConexion";
@@ -323,7 +326,7 @@
             // 
             // lbStatus
             // 
-            this.lbStatus.BackColor = System.Drawing.Color.GreenYellow;
+            this.lbStatus.BackColor = System.Drawing.Color.Transparent;
             this.lbStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lbStatus.Name = "lbStatus";
             this.lbStatus.Size = new System.Drawing.Size(150, 17);
@@ -332,7 +335,7 @@
             // btnCancelar
             // 
             this.btnCancelar.Enabled = false;
-            this.btnCancelar.Location = new System.Drawing.Point(83, 277);
+            this.btnCancelar.Location = new System.Drawing.Point(188, 306);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(75, 23);
             this.btnCancelar.TabIndex = 3;
@@ -362,14 +365,19 @@
             // 
             this.listaCiclos.Name = "listaCiclos";
             this.listaCiclos.Size = new System.Drawing.Size(121, 23);
-            this.listaCiclos.Text = "Ciclo Escolar";
             this.listaCiclos.SelectedIndexChanged += new System.EventHandler(this.@__CambioCiclo);
+            // 
+            // lbCicloEscolar
+            // 
+            this.lbCicloEscolar.Name = "lbCicloEscolar";
+            this.lbCicloEscolar.Size = new System.Drawing.Size(0, 17);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(331, 330);
+            this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.ClientSize = new System.Drawing.Size(331, 358);
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menu);
@@ -430,6 +438,7 @@
         private System.Windows.Forms.MenuStrip menu;
         private System.Windows.Forms.ToolStripMenuItem ajustesToolStripMenuItem;
         private System.Windows.Forms.ToolStripComboBox listaCiclos;
+        private System.Windows.Forms.ToolStripStatusLabel lbCicloEscolar;
     }
 }
 

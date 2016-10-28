@@ -18,6 +18,12 @@ namespace Utilidades
             return JsonConvert.DeserializeObject<List<Empleado>>(json);
         }
 
+        //Convertir un JSON a una Confirmación
+        public static Confirmacion Json_Confirmacion(string json)
+        {
+            return JsonConvert.DeserializeObject<Confirmacion>(json);
+        }
+
         //Convertir un objeto de cualquier clase a un JSON
         public static string Objeto_Json(Object objeto)
         {
